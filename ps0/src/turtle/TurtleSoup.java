@@ -90,7 +90,14 @@ public class TurtleSoup {
      */
     public static double calculateHeadingToPoint(double currentHeading, int currentX, int currentY,
                                                  int targetX, int targetY) {
-        throw new RuntimeException("implement me!");
+        int dx = targetX - currentX;
+        int dy = targetY - currentY;
+        double targetAngle = Math.toDegrees(Math.atan2(dx, dy));
+        double heading = targetAngle - currentHeading;
+        if (heading < 0) {
+            heading += 360;
+        }
+        return heading;
     }
 
     /**
@@ -108,7 +115,28 @@ public class TurtleSoup {
      *         otherwise of size (# of points) - 1
      */
     public static List<Double> calculateHeadings(List<Integer> xCoords, List<Integer> yCoords) {
-        throw new RuntimeException("implement me!");
+        int length = xCoords.size();
+        int curCoordinateX = xCoords.get(0);
+        int curCoordinateY = yCoords.get(0);
+        double currnetHeading = 0;
+        List<Double> returnAnglesList = new ArrayList<>();
+        for (int i = 1; i < xCoords.size(); i++) {
+            int targetX = xCoords.get(i);
+            int targetY = yCoords.get(i);
+            currnetHeading = calculateHeadingToPoint(currnetHeading, curCoordinateX, curCoordinateY, targetX, targetY);
+            returnAnglesList.add(currnetHeading);
+            curCoordinateX = targetX;
+            curCoordinateY = targetY;
+        }
+        return returnAnglesList;
+    }
+
+    /**
+     * The method call drawRegularPolygon method to create a circle by using 25 sides and length = 10
+     *
+     */
+    public static void DrawCircle(Turtle turtle) {
+        drawRegularPolygon(turtle, 40, 10);
     }
 
     /**
@@ -120,7 +148,37 @@ public class TurtleSoup {
      * @param turtle the turtle context
      */
     public static void drawPersonalArt(Turtle turtle) {
-        throw new RuntimeException("implement me!");
+        DrawCircle(turtle);
+        turtle.color(PenColor.CYAN);
+        turtle.turn(90);
+        turtle.forward(75);
+        turtle.turn(270);
+        turtle.color(PenColor.BLACK);
+        DrawCircle(turtle);
+        turtle.color(PenColor.CYAN);
+        turtle.turn(90);
+        turtle.forward(-150);
+        turtle.turn(270);
+        turtle.color(PenColor.BLACK);
+        DrawCircle(turtle);
+
+        turtle.color(PenColor.CYAN);
+        turtle.turn(90);
+        turtle.forward(35);
+        turtle.turn(90);
+        turtle.forward(75);
+        turtle.turn(180);
+        turtle.color(PenColor.BLACK);
+        DrawCircle(turtle);
+
+        turtle.color(PenColor.CYAN);
+        turtle.turn(90);
+        turtle.forward(95);
+        turtle.turn(270);
+        turtle.color(PenColor.BLACK);
+        DrawCircle(turtle);
+
+
     }
 
     /**
@@ -134,8 +192,8 @@ public class TurtleSoup {
         DrawableTurtle turtle = new DrawableTurtle();
 
         // drawSquare(turtle, 40);
-        drawRegularPolygon(turtle, 20, 40);
-
+        // drawRegularPolygon(turtle, 7, 40);
+        drawPersonalArt(turtle);
         // draw the window
         turtle.draw();
     }
