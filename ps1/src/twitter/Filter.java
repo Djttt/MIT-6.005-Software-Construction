@@ -3,7 +3,11 @@
  */
 package twitter;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Filter consists of methods that filter a list of tweets for those matching a
@@ -27,7 +31,13 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> writtenBy(List<Tweet> tweets, String username) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> returnList = new ArrayList<>();
+        for (Tweet tweet : tweets) {
+            if (tweet.getAuthor().equals(username)) {
+                returnList.add(tweet);
+            }
+        }
+        return returnList;
     }
 
     /**
@@ -41,7 +51,29 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> inTimespan(List<Tweet> tweets, Timespan timespan) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> returnList = new ArrayList<>();
+        for(Tweet tweet : tweets) {
+            Instant curTweetTimeStamp = tweet.getTimestamp();
+            if (curTweetTimeStamp.isAfter(timespan.getStart()) &&
+                    curTweetTimeStamp.isBefore(timespan.getEnd())) {
+                returnList.add(tweet);
+            }
+        }
+        return returnList;
+    }
+
+    /**
+     * Convert text into words list by String.split()
+     * @param text input String
+     * @return a list of words
+     */
+    private static Set<String> textToWords(String text) {
+        Set<String> words = new HashSet<>();
+        String[] wordsArray = text.split(" ");
+        for (String word : wordsArray) {
+            words.add(word.toLowerCase());
+        }
+        return words;
     }
 
     /**
@@ -60,7 +92,19 @@ public class Filter {
      *         same order as in the input list.
      */
     public static List<Tweet> containing(List<Tweet> tweets, List<String> words) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> returnList = new ArrayList<>();
+        for (Tweet tweet : tweets) {
+            String text = tweet.getText();
+            Set<String> wordsSetOfText = textToWords(text);
+            for (String word : words) {
+                if (wordsSetOfText.contains(word)) {
+                    returnList.add(tweet);
+                    break;
+                }
+            }
+
+        }
+        return returnList;
     }
 
 }

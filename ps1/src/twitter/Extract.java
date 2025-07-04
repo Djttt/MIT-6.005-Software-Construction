@@ -3,6 +3,8 @@
  */
 package twitter;
 
+import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +26,38 @@ public class Extract {
      *         every tweet in the list.
      */
     public static Timespan getTimespan(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        assert !tweets.isEmpty() : "List<Tweet>'s size must > 0";
+        Instant start = tweets.get(0).getTimestamp();
+        Instant end = tweets.get(0).getTimestamp();
+        for (Tweet tweet: tweets) {
+            Instant curTime = tweet.getTimestamp();
+            if (curTime.isBefore(start)) {
+                start = curTime;
+            }
+            if (curTime.isAfter(end)) {
+                end = curTime;
+            }
+        }
+        return new Timespan(start, end);
+    }
+
+
+    /**
+     * Judge a char whether author char
+     * @param ch a character
+     * @return if character satisfy author's char require, then return true, else return false.
+     */
+    private static boolean isAuthorChar(char ch) {
+        /* Rep invariant:
+         *    author.length > 0
+         *    all characters in author are drawn from {A..Z, a..z, 0..9, _, -}
+         *    text.length <= 140
+         */
+        if ((ch > 'A' && ch < 'Z') || (ch > 'a' && ch < 'z') ||
+                (ch > '0' && ch < '9') || ch == '_' || ch == '-') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -43,7 +76,34 @@ public class Extract {
      *         include a username at most once.
      */
     public static Set<String> getMentionedUsers(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Set<String> mentionedUser = new HashSet<>();
+        for (Tweet tweet : tweets) {
+            // convert the string to lowercase.
+            String text = tweet.getText().toLowerCase();
+            for (int i = 0; i < text.length(); i+=1) {
+                int startPos;
+                int endPos;
+                if (text.charAt(i) == '@') {
+                    if (i - 1 > 0) {
+                        char preMentionedChar = text.charAt(i - 1);
+                        if (isAuthorChar(preMentionedChar)) {
+                            continue;
+                        }
+                    }
+                    startPos = i + 1;
+                    int j = 1;
+                    while (i + j < text.length() && isAuthorChar(text.charAt(i + j))) {
+                        j+=1;
+                    }
+                    endPos = i + j;
+                    mentionedUser.add(text.substring(startPos, endPos));
+                    i = i + j;
+                }
+            }
+
+        }
+        return mentionedUser;
+
     }
 
 }
