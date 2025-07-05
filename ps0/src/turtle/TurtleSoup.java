@@ -154,6 +154,8 @@ public class TurtleSoup {
         turtle.forward(75);
         turtle.turn(270);
         turtle.color(PenColor.BLACK);
+
+
         DrawCircle(turtle);
         turtle.color(PenColor.CYAN);
         turtle.turn(90);
