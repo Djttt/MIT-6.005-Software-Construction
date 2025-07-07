@@ -89,7 +89,9 @@ public abstract class GraphInstanceTest {
     public void testGrapyAddVertexNotExited() {
         Graph<String> graph = emptyInstance();
         assertTrue("expected true", graph.add("Andrew"));
-        assertEquals("expected get a set contains Andrew", Collections.emptySet().add("Andrew"), graph.vertices());
+        Set<String> expected = new HashSet<>();
+        expected.add("Andrew");
+        assertEquals("expected get a set contains Andrew", expected, graph.vertices());
     }
 
     // Cover weight = 0, then remove the edge if exited.
