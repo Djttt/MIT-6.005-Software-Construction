@@ -5,7 +5,7 @@ package graph;
 
 import static org.junit.Assert.*;
 
-import java.util.Collections;
+import java.util.*;
 
 import org.junit.Test;
 
@@ -34,4 +34,30 @@ public class GraphStaticTest {
     }
     
     // TODO test other vertex label types in Problem 3.2
+    // Test Graph with immutable type Integer.
+    @Test
+    public void testGraphWithIntegerLabel() {
+        Graph<Integer> graph = Graph.empty();
+        graph.add(22);
+        graph.add(33);
+        graph.set(22, 33, 12);
+        graph.set(33, 34, 22);
+        Set<Integer> expected = new HashSet<>();
+        expected.add(22);
+        expected.add(33);
+        expected.add(34);
+
+        assertEquals("expected", expected, graph.vertices());
+    }
+
+    // Test Graph with char type
+    @Test
+    public void testGraphWithCharLabel() {
+        Graph<Character> graph = Graph.empty();
+        graph.add('c');
+        graph.set('c', 'd', 22);
+
+        assertEquals("expected", "Edge: {<c, d, 22>}, Vertices: {c, d}", graph.toString());
+    }
+
 }

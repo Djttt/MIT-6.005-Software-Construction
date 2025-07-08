@@ -3,10 +3,15 @@
  */
 package poet;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import graph.Graph;
+import sun.security.provider.certpath.Vertex;
 
 /**
  * A graph-based poetry generator.
@@ -53,13 +58,16 @@ import graph.Graph;
 public class GraphPoet {
     
     private final Graph<String> graph = Graph.empty();
-    
+    private int graphSize = 0;
     // Abstraction function:
     //   TODO
+    // a poet initialized with a corpus
     // Representation invariant:
     //   TODO
+    // represent words relationship by graph, graph is immutable.
     // Safety from rep exposure:
     //   TODO
+    // all fields is private.
     
     /**
      * Create a new poet with the graph from corpus (as described above).
@@ -68,11 +76,61 @@ public class GraphPoet {
      * @throws IOException if the corpus file cannot be found or read
      */
     public GraphPoet(File corpus) throws IOException {
-        throw new RuntimeException("not implemented");
+        BufferedReader br = new BufferedReader(new FileReader(corpus));
+        String line;
+        while((line = br.readLine()) != null) {
+            String[] lineWords = line.split(" ");
+            for (int i = 0; i < lineWords.length; i++) {
+                // Convert to lower case and add into graph.
+                String currentWord = lineWords[i].toLowerCase();
+                graph.add(currentWord);
+                graphSize += 1;
+                if (i + 1 < lineWords.length) {
+                    int nextIndex = i + 1;
+                    String pairWord = lineWords[nextIndex].toLowerCase();
+                    while (nextIndex + 1 < lineWords.length &&
+                            lineWords[nextIndex].equals(lineWords[nextIndex + 1])) {
+                        nextIndex += 1;
+                    }
+                    graph.set(currentWord, pairWord, nextIndex - i);
+                    i = nextIndex - 1;
+                }
+            }
+        }
+        checkRep();
     }
     
     // TODO checkRep
-    
+    private void checkRep() {
+        assert graph.vertices().size() == graphSize;
+    }
+
+
+    /**
+     * from start to end, get a max weight two-edge-long path node. If it don't exit, return null, else return the vertex
+     * @param start start vertex
+     * @param end end vertex
+     * @return list of all two-edge-long path node.
+     */
+    private String getTwoEdgeLongMaxWeightNode(String start, String end) {
+        Map<String, Integer> vertices1 = graph.targets(start.toLowerCase());
+        Map<String, Integer> vertices2 = graph.sources(end.toLowerCase());
+        int maxWeight = 0;
+        String twoEdgeString = null;
+        for (String key : vertices1.keySet()) {
+            if (vertices2.containsKey(key)) {
+                int sumWeight = vertices1.get(key) + vertices2.get(key);
+                if (sumWeight > maxWeight) {
+                    maxWeight = sumWeight;
+                    twoEdgeString = key;
+                }
+            }
+        }
+        checkRep();
+        return twoEdgeString;
+    }
+
+
     /**
      * Generate a poem.
      * 
@@ -80,9 +138,34 @@ public class GraphPoet {
      * @return poem (as described above)
      */
     public String poem(String input) {
-        throw new RuntimeException("not implemented");
+        String[] words = input.split(" ");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < words.length - 1; i++) {
+            String pairWord1 = words[i];
+            String pairWord2 = words[i + 1];
+            String insertStr = getTwoEdgeLongMaxWeightNode(pairWord1, pairWord2);
+            if (i == 0) {
+                stringBuilder.append(pairWord1);
+            }
+            if (insertStr != null) {
+                stringBuilder.append(" ");
+                stringBuilder.append(insertStr);
+                stringBuilder.append(" ");
+                stringBuilder.append(pairWord2);
+            }
+            else {
+                stringBuilder.append(" ");
+                stringBuilder.append(pairWord2);
+            }
+        }
+        checkRep();
+        return stringBuilder.toString();
     }
     
     // TODO toString()
+    @Override
+    public String toString() {
+        return graph.toString();
+    }
     
 }
