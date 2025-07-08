@@ -53,9 +53,6 @@ public abstract class GraphInstanceTest {
     // Partition the inputs
     // graph's targets vertices is empty
     // graph's targets vertices is not empty
-
-
-
     /**
      * Overridden by implementation-specific test classes.
      * 
