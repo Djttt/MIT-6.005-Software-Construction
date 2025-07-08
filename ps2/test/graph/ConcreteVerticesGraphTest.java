@@ -26,7 +26,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
      * Provide a ConcreteVerticesGraph for tests in GraphInstanceTest.
      */
     @Override public Graph<String> emptyInstance() {
-        return new ConcreteVerticesGraph();
+        return new ConcreteVerticesGraph<String>();
     }
     /*
      * Testing ConcreteVerticesGraph...
@@ -38,7 +38,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
     // TODO tests for ConcreteVerticesGraph.toString()
     @Test
     public void testConcreteVerticesGraphToString() {
-       ConcreteVerticesGraph graph = new ConcreteVerticesGraph();
+       ConcreteVerticesGraph<String> graph = new ConcreteVerticesGraph<String>();
        graph.set("MIT", "Berkeley", 22);
        graph.set("MIT", "Stanford", 29);
        graph.set("kk", "kkk22", 11);
@@ -60,13 +60,13 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
     // TODO tests for operations of Vertex
     @Test
     public void testVertexGetSource() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         assertEquals("expected", "MIT", vertex.getSource());
     }
 
     @Test
     public void testAddEdge() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
         Map<String, Integer> expected = new HashMap<>();
         expected.put("Harvard", 42);
@@ -79,7 +79,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testCheckEdgeExit() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
         assertTrue("expected", vertex.checkEdgeExit("Harvard"));
 
@@ -88,7 +88,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testGetTargetWeight() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
 
         assertEquals("expected", 42, vertex.getTargetWeight("Harvard"));
@@ -99,7 +99,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testGetAdjacentVertices() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
         vertex.addEdge("UC Berkeley", 22);
         vertex.addEdge("Princeton", 25);
@@ -114,7 +114,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testRemoveEdge() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
         vertex.addEdge("UC Berkeley", 22);
         vertex.addEdge("Princeton", 25);
@@ -128,7 +128,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testToString() {
-        Vertex vertex = new Vertex("MIT");
+        Vertex<String> vertex = new Vertex<String>("MIT");
         vertex.addEdge("Harvard", 42);
         vertex.addEdge("UC Berkeley", 22);
         vertex.addEdge("Princeton", 25);

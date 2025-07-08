@@ -10,9 +10,9 @@ import java.util.*;
  * 
  * <p>PS2 instructions: you MUST use the provided rep.
  */
-public class ConcreteVerticesGraph implements Graph<String> {
+public class ConcreteVerticesGraph<L> implements Graph<L> {
     
-    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Vertex<L>> vertices = new ArrayList<>();
     
     // Abstraction function:
     //   TODO
@@ -31,7 +31,7 @@ public class ConcreteVerticesGraph implements Graph<String> {
         checkRep();
     }
 
-    public ConcreteVerticesGraph(String vertex) {
+    public ConcreteVerticesGraph(L vertex) {
         Vertex ver = new Vertex(vertex);
         vertices.add(ver);
         checkRep();
@@ -40,8 +40,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
     // TODO checkRep
     private void checkRep() {
         int verticesSize = vertices.size();
-        Set<String> uniqueVertices = new HashSet<>();
-        for (Vertex ver : vertices) {
+        Set<L> uniqueVertices = new HashSet<>();
+        for (Vertex<L> ver : vertices) {
             uniqueVertices.add(ver.getSource());
         }
         assert uniqueVertices.size() == verticesSize : "don't keep source node unique";
@@ -52,8 +52,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
      * @param vertex target string vertex.
      * @return boolean if target vertex exit in vertices list, else return false.
      */
-    private boolean checkOccurVertex(String vertex) {
-        for (Vertex ver : vertices) {
+    private boolean checkOccurVertex(L vertex) {
+        for (Vertex<L> ver : vertices) {
             if (ver.getSource().equals(vertex)) {
                 checkRep();
                 return true;
@@ -68,8 +68,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
      * @param target target vertex string
      * @return Vertex object of target string, if exited, else return a null.
      */
-    private Vertex getTargetVertex(String target) {
-        for (Vertex vertex : vertices) {
+    private Vertex<L> getTargetVertex(L target) {
+        for (Vertex<L> vertex : vertices) {
             if (vertex.getSource().equals(target)) {
                 checkRep();
                 return vertex;
@@ -80,18 +80,18 @@ public class ConcreteVerticesGraph implements Graph<String> {
     }
 
 
-    @Override public boolean add(String vertex) {
+    @Override public boolean add(L vertex) {
         if (checkOccurVertex(vertex)) {
             checkRep();
             return false;
         }
-        Vertex ver = new Vertex(vertex);
+        Vertex<L> ver = new Vertex<L>(vertex);
         this.vertices.add(ver);
         checkRep();
         return true;
     }
     
-    @Override public int set(String source, String target, int weight) {
+    @Override public int set(L source, L target, int weight) {
         if (weight == 0) {
             if (checkOccurVertex(source)) {
                 Vertex ver = getTargetVertex(source);
@@ -144,14 +144,14 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return 0;
     }
     
-    @Override public boolean remove(String vertex) {
+    @Override public boolean remove(L vertex) {
         if (checkOccurVertex(vertex)) {
-            Vertex sourceVertex = getTargetVertex(vertex);
+            Vertex<L> sourceVertex = getTargetVertex(vertex);
             // remove all edges from this vertex.
             vertices.remove(sourceVertex);
 
             // remove all edges to this vertex.
-            for (Vertex ver : vertices) {
+            for (Vertex<L> ver : vertices) {
                 ver.removeEdge(vertex);
             }
             checkRep();
@@ -161,18 +161,18 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return false;
     }
     
-    @Override public Set<String> vertices() {
-        Set<String> verticesLabels = new HashSet<>();
-        for (Vertex ver : vertices) {
+    @Override public Set<L> vertices() {
+        Set<L> verticesLabels = new HashSet<>();
+        for (Vertex<L> ver : vertices) {
             verticesLabels.add(ver.getSource());
         }
         checkRep();
         return verticesLabels;
     }
     
-    @Override public Map<String, Integer> sources(String target) {
-        Map<String, Integer> sourcesMap = new HashMap<>();
-        for (Vertex ver : vertices) {
+    @Override public Map<L, Integer> sources(L target) {
+        Map<L, Integer> sourcesMap = new HashMap<>();
+        for (Vertex<L> ver : vertices) {
             if (ver.checkEdgeExit(target)) {
                 sourcesMap.put(ver.getSource(), ver.getTargetWeight(target));
             }
@@ -181,8 +181,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return sourcesMap;
     }
     
-    @Override public Map<String, Integer> targets(String source) {
-        Vertex ver = getTargetVertex(source);
+    @Override public Map<L, Integer> targets(L source) {
+        Vertex<L> ver = getTargetVertex(source);
         if (ver != null) {
             checkRep();
             return ver.getAdjacentVertices();
@@ -196,7 +196,7 @@ public class ConcreteVerticesGraph implements Graph<String> {
         String graphString = "Edges: {";
         int count = 0;
         int verticesSize = vertices.size() - 1;
-        for (Vertex ver : vertices) {
+        for (Vertex<L> ver : vertices) {
             if (count == verticesSize) {
                 graphString += ver.toString();
                 break;
@@ -209,7 +209,7 @@ public class ConcreteVerticesGraph implements Graph<String> {
 
         graphString += "}" + ", " + "Vertices: {";
         count = 0;
-        for (Vertex ver : vertices) {
+        for (Vertex<L> ver : vertices) {
             if (count == verticesSize) {
                 graphString += ver.getSource();
                 break;
@@ -232,11 +232,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
  * <p>PS2 instructions: the specification and implementation of this class is
  * up to you.
  */
-class Vertex {
+class Vertex<L> {
     
     // TODO fields
-    private final String source;
-    private final Map<String, Integer> adjVertex = new HashMap<>();
+    private final L source;
+    private final Map<L, Integer> adjVertex = new HashMap<>();
     // Abstraction function:
     //   TODO
     // a graph is a set of vertices and its adjacent vertices.
@@ -249,7 +249,7 @@ class Vertex {
     // adjVertex is mutable, so
     
     // TODO constructor
-    public Vertex(String source) {
+    public Vertex(L source) {
         this.source = source;
         checkRep();
     }
@@ -264,7 +264,7 @@ class Vertex {
      * get Vertex class source vertex
      * @return Vertex class source vertex
      */
-    public String getSource() {
+    public L getSource() {
         checkRep();
         return source;
     }
@@ -274,8 +274,8 @@ class Vertex {
      * @param target target vertex.
      * @return if source => target exit, return true, otherwise return false;
      */
-    public boolean checkEdgeExit(String target) {
-        for (String key : adjVertex.keySet()) {
+    public boolean checkEdgeExit(L target) {
+        for (L key : adjVertex.keySet()) {
             if (key.equals(target)) {
                 checkRep();
                 return true;
@@ -290,7 +290,7 @@ class Vertex {
      * @param Target target vertex.
      * @return edge(source => target) exit, return weight, else return -1.
      */
-    public int getTargetWeight(String Target) {
+    public int getTargetWeight(L Target) {
         if (checkEdgeExit(Target)) {
             checkRep();
             return adjVertex.get(Target);
@@ -303,9 +303,9 @@ class Vertex {
      * Get all Adjacent vertices, which connect to source vertex.
      * @return a map of all adjacent vertices, which include adjacent vertex and weight.
      */
-    public Map<String, Integer> getAdjacentVertices() {
-        Map<String, Integer> adjacent = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : adjVertex.entrySet()) {
+    public Map<L, Integer> getAdjacentVertices() {
+        Map<L, Integer> adjacent = new HashMap<>();
+        for (Map.Entry<L, Integer> entry : adjVertex.entrySet()) {
             adjacent.put(entry.getKey(), entry.getValue());
         }
         checkRep();
@@ -316,7 +316,7 @@ class Vertex {
      *  Add an edge to the graph, represent an edge of (source => target). if target not exit, add edge, else update weight.
      * @param target require to add the vertex.
      */
-    public void addEdge(String target, int weight) {
+    public void addEdge(L target, int weight) {
         adjVertex.put(target, weight);
         checkRep();
     }
@@ -325,7 +325,7 @@ class Vertex {
      * Edge exited, remove this edge in the graph and return true, else return false.
      * @param target target vertex.
      */
-    public boolean removeEdge(String target) {
+    public boolean removeEdge(L target) {
         if (checkEdgeExit(target)) {
             adjVertex.remove(target);
             checkRep();
@@ -342,7 +342,7 @@ class Vertex {
         String adjacentGraph = "";
         int lastIndex = adjVertex.size() - 1;
         int count = 0;
-        for (String target : adjVertex.keySet()) {
+        for (L target : adjVertex.keySet()) {
             if (count == lastIndex) {
                 adjacentGraph += "<" + this.source + ", " + target + ", " + adjVertex.get(target) + ">";
                 break;

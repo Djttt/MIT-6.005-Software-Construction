@@ -24,7 +24,7 @@ public class ConcreteEdgesGraphTest extends GraphInstanceTest {
      * Provide a ConcreteEdgesGraph for tests in GraphInstanceTest.
      */
     @Override public Graph<String> emptyInstance() {
-        return new ConcreteEdgesGraph();
+        return new ConcreteEdgesGraph<String>();
     }
     
     /*
@@ -41,13 +41,13 @@ public class ConcreteEdgesGraphTest extends GraphInstanceTest {
     // TODO tests for ConcreteEdgesGraph.toString()
     @Test
     public void testConcreteEdgesGraphToStringEmptyGraph() {
-        ConcreteEdgesGraph graph = new ConcreteEdgesGraph();
+        ConcreteEdgesGraph<String> graph = new ConcreteEdgesGraph<String>();
         assertEquals("expected", "Edge: {}, Vertices: {}", graph.toString());
     }
 
     @Test
     public void testConcreteEdgesGraphToStringEmptyEdgeGraph() {
-        ConcreteEdgesGraph graph = new ConcreteEdgesGraph();
+        ConcreteEdgesGraph<String> graph = new ConcreteEdgesGraph<String>();
         graph.add("MIT");
         graph.add("Stanford");
         assertEquals("expected", "Edge: {}, Vertices: {Stanford, MIT}", graph.toString());
@@ -55,17 +55,17 @@ public class ConcreteEdgesGraphTest extends GraphInstanceTest {
 
     @Test
     public void testConcreteEdgesGraphToStringEdgesGraph() {
-        Edge edge1 = new Edge("MIT", "Stanford", 23);
-        Edge edge2 = new Edge("MIT", "Harvard", 12);
-        List<Edge> edges = new ArrayList<>();
+        Edge<String> edge1 = new Edge<String>("MIT", "Stanford", 23);
+        Edge<String> edge2 = new Edge<String>("MIT", "Harvard", 12);
+        List<Edge<String>> edges = new ArrayList<>();
         edges.add(edge1);
 
 
-        ConcreteEdgesGraph graph = new ConcreteEdgesGraph(edges);
+        ConcreteEdgesGraph<String> graph = new ConcreteEdgesGraph<String>(edges);
         assertEquals("expected", "Edge: {<MIT, Stanford, 23>}, Vertices: {Stanford, MIT}", graph.toString());
 
         edges.add(edge2);
-        ConcreteEdgesGraph graph2 = new ConcreteEdgesGraph(edges);
+        ConcreteEdgesGraph<String> graph2 = new ConcreteEdgesGraph<String>(edges);
         assertEquals("expected", "Edge: {<MIT, Stanford, 23>, <MIT, Harvard, 12>}, Vertices: {Stanford, Harvard, MIT}", graph2.toString());
     }
     
@@ -92,25 +92,25 @@ public class ConcreteEdgesGraphTest extends GraphInstanceTest {
     // TODO tests for operations of Edge
     @Test
     public void testEdgeToString() {
-        Edge edge = new Edge("wode", "New York", 22);
+        Edge<String> edge = new Edge<String>("wode", "New York", 22);
         assertEquals("expected:", "<wode, New York, 22>", edge.toString());
     }
 
     @Test
     public void testEdgeGetSource() {
-        Edge edge = new Edge("wode", "New York", 22);
+        Edge<String> edge = new Edge<String>("wode", "New York", 22);
         assertEquals("expected", "wode", edge.getSource());
     }
 
     @Test
     public void testEdgeGetTarget() {
-        Edge edge = new Edge("wode", "New York", 22);
+        Edge<String> edge = new Edge<String>("wode", "New York", 22);
         assertEquals("expected", "New York", edge.getTarget());
     }
 
     @Test
     public void testEdgeGetWeight() {
-        Edge edge = new Edge("wode", "New York", 22);
+        Edge<String> edge = new Edge<String>("wode", "New York", 22);
         assertEquals("expected", 22, edge.getWeight());
     }
 
