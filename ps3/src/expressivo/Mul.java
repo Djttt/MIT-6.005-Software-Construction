@@ -45,6 +45,11 @@ public class Mul implements Expression{
      */
     public int getPrecedence() { return 2; }
 
+    @Override
+    public Expression differentiation(Variable variable) {
+        return new Add(new Mul(left, right.differentiation(variable)),
+                        new Mul(right, left.differentiation(variable)));
+    }
 
     @Override
     public String toString() {

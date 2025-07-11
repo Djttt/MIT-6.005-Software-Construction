@@ -58,4 +58,13 @@ public class Variable implements Expression{
         return 3;
     }
 
+    @Override
+    public Expression differentiation(Variable variable) {
+        if (this.equals(variable)) {
+            return new Constant(1);
+        }
+        return new Constant(0);
+    }
+
+
 }

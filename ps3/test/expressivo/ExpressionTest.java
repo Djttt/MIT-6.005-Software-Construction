@@ -136,4 +136,49 @@ public class ExpressionTest {
         assertEquals(expr6.hashCode(), expr2.hashCode());
         assertEquals(expr7.hashCode(), expr3.hashCode());
     }
+
+
+    @Test
+    public void testDifferentiationWithConstant() throws IOException {
+        Expression expr1 = Expression.parse("54");
+        Variable variable = new Variable("X");
+        Expression dExpr = expr1.differentiation(variable);
+
+        assertEquals("0.0", dExpr.toString());
+    }
+
+    @Test
+    public void testDifferentiationWithOneVariable() throws IOException {
+        Expression expr1 = Expression.parse("X");
+        Variable X = new Variable("X");
+        Variable Y = new Variable("Y");
+
+        Expression dExpr1 = expr1.differentiation(X);
+        Expression dExpr2 = expr1.differentiation(Y);
+
+        assertEquals("1.0", dExpr1.toString());
+        assertEquals("0.0", dExpr2.toString());
+    }
+
+
+    @Test
+    public void testDifferentiationWithComplexExpression() throws IOException {
+        Expression expr1 = Expression.parse("x*x*x");
+        Variable X = new Variable("x");
+        Variable Y = new Variable("y");
+
+        Expression dExpr1 = expr1.differentiation(X);
+        Expression dExpr2 = expr1.differentiation(Y);
+
+        assertEquals("x*(x*1.0+x*1.0)+x*x*1.0", dExpr1.toString());
+        assertEquals("x*(x*0.0+x*0.0)+x*x*0.0", dExpr2.toString());
+
+
+        Expression expr2 = Expression.parse("x*x*x + x * y");
+
+        Expression dExpr3 = expr2.differentiation(X);
+        Expression dExpr4 = expr2.differentiation(Y);
+        assertEquals("x*(x*1.0+x*1.0)+x*x*1.0+x*0.0+y*1.0", dExpr3.toString());
+        assertEquals("x*(x*0.0+x*0.0)+x*x*0.0+x*1.0+y*0.0", dExpr4.toString());
+    }
 }

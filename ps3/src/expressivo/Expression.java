@@ -41,7 +41,7 @@ public interface Expression {
      * @return expression AST for the input
      * @throws IllegalArgumentException if the expression is invalid
      */
-    public static Expression parse(String input) throws IOException {
+    public static Expression parse(String input) throws IllegalArgumentException {
         CharStream stream = new ANTLRInputStream(input);
         ExpressionLexer lexer = new ExpressionLexer(stream);
         TokenStream tokens = new CommonTokenStream(lexer);
@@ -99,5 +99,12 @@ public interface Expression {
      * @return get currently node's operator precedence
      */
     public int getPrecedence();
+
+    /**
+     * produce an expression of the derivative of itself expression
+     * does not need to be simplified.
+     * @return a new expression of the derivative of this expression
+     */
+    public Expression differentiation(Variable variable);
 
 }

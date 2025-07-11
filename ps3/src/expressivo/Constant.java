@@ -52,4 +52,9 @@ public class Constant implements Expression{
     public int getPrecedence() {
         return 3;
     }
+
+    @Override
+    public Expression differentiation(Variable variable) {
+        return new Constant(0.0);
+    }
 }

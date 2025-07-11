@@ -48,6 +48,11 @@ public class Add implements Expression {
      */
     public int getPrecedence() { return 1; }
 
+    @Override
+    public Expression differentiation(Variable variable) {
+        return new Add(left.differentiation(variable),
+                        right.differentiation(variable));
+    }
 
 
     @Override
