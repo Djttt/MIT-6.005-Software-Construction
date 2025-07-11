@@ -18,6 +18,10 @@ public interface Expression {
     
     // Datatype definition
     //   TODO
+    // Expression = constant(number: string)
+    //              ｜variable(name: String)
+    //              ｜ Add(left: Expression, right: Expression)
+    //              |  Mul(left: Expression, right: Expression)
     
     /**
      * Parse an expression.
@@ -33,7 +37,7 @@ public interface Expression {
      * @return a parsable representation of this expression, such that
      * for all e:Expression, e.equals(Expression.parse(e.toString())).
      */
-    @Override 
+    @Override
     public String toString();
 
     /**
@@ -51,7 +55,21 @@ public interface Expression {
      */
     @Override
     public int hashCode();
-    
+
+
     // TODO more instance methods
-    
+
+    /**
+     * according to precedence to decide to add parentheses, and return a human-readable string of expression.
+     * @param parentPrecedence parent node precedence, parentPrecedence = 1, 2, 3, higher is more precedence.
+     * @return a human-readable string of an expression.
+     */
+    String toString(int parentPrecedence);
+
+
+    /**
+     * @return get currently node's operator precedence
+     */
+    public int getPrecedence();
+
 }
