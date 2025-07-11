@@ -31,13 +31,37 @@ public class ExpressionBaseListener implements ExpressionListener {
    *
    * <p>The default implementation does nothing.</p>
    */
-  @Override public void enterSum(ExpressionParser.SumContext ctx) { }
+  @Override public void enterPolynomial_calculate(ExpressionParser.Polynomial_calculateContext ctx) { }
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.</p>
    */
-  @Override public void exitSum(ExpressionParser.SumContext ctx) { }
+  @Override public void exitPolynomial_calculate(ExpressionParser.Polynomial_calculateContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void enterAdd_expr(ExpressionParser.Add_exprContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void exitAdd_expr(ExpressionParser.Add_exprContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void enterMul_expr(ExpressionParser.Mul_exprContext ctx) { }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.</p>
+   */
+  @Override public void exitMul_expr(ExpressionParser.Mul_exprContext ctx) { }
   /**
    * {@inheritDoc}
    *

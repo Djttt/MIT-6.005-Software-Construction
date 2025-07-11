@@ -2,21 +2,23 @@ package expressivo;
 
 /**
  * An immutable data type to present a polynomial expression with multiplication operator.
+ * new Expression = expression left + expression right.
  */
 public class Mul implements Expression{
     private final Expression left;
     private final Expression right;
     // Rep invariants
-    // operator != null, rest != null
+    // left != null, right != null
     // abstraction function
-    // represent a new expression: newExpression = expression(rest)*operator.
+    // represent a new expression: newExpression = expression(rest)*expression(right).
     // safety from Rep exposure
     // all fields is private
-    // operator is string, which is immutable.
-    // expression is immutable.
+    // left  is immutable.
+    // expression right is immutable.
 
     private void checkRep () {
-        throw new RuntimeException("not implemented");
+        assert left != null;
+        assert right != null;
     }
 
     /**

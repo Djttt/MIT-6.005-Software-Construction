@@ -3,6 +3,18 @@
  */
 package expressivo;
 
+
+import expressivo.parser.ExpressionLexer;
+import expressivo.parser.ExpressionListener;
+import expressivo.parser.ExpressionParser;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+import java.io.IOException;
+
 /**
  * An immutable data type representing a polynomial expression of:
  *   + and *
@@ -15,7 +27,7 @@ package expressivo;
  * Declare concrete variants of Expression in their own Java source files.
  */
 public interface Expression {
-    
+
     // Datatype definition
     //   TODO
     // Expression = constant(number: string)
@@ -29,8 +41,24 @@ public interface Expression {
      * @return expression AST for the input
      * @throws IllegalArgumentException if the expression is invalid
      */
-    public static Expression parse(String input) {
-        throw new RuntimeException("unimplemented");
+    public static Expression parse(String input) throws IOException {
+        CharStream stream = new ANTLRInputStream(input);
+        ExpressionLexer lexer = new ExpressionLexer(stream);
+        TokenStream tokens = new CommonTokenStream(lexer);
+
+        ExpressionParser parser = new ExpressionParser(tokens);
+
+        // produces a parse tree
+        ParseTree tree = parser.root();
+
+        // Traversing the parse tree
+        ParseTreeWalker walker = new ParseTreeWalker();
+        MakeExpresion listener = new MakeExpresion();
+        walker.walk(listener, tree);
+
+        Expression result = listener.getExpression();
+
+        return result;
     }
     
     /**

@@ -3,7 +3,21 @@
  */
 package expressivo;
 
+import expressivo.parser.ExpressionLexer;
+import expressivo.parser.ExpressionListener;
+import expressivo.parser.ExpressionParser;
+import org.antlr.v4.gui.Trees;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.sql.Time;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,43 +48,92 @@ public class ExpressionTest {
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
     }
-    
-    
+
+
+    @Test
+    public void testANTLRParser() {
+        CharStream stream = new ANTLRInputStream("54*(2+89)");
+        ExpressionLexer lexer = new ExpressionLexer(stream);
+        TokenStream tokens = new CommonTokenStream(lexer);
+
+        ExpressionParser parser = new ExpressionParser(tokens);
+
+        // produces a parse tree
+        ParseTree tree = parser.root();
+
+        // Traversing the parse tree
+        ParseTreeWalker walker = new ParseTreeWalker();
+        ExpressionListener listener = new PrintEverything();
+        walker.walk(listener, tree);
+
+
+        while (true) {
+            Trees.inspect(tree, parser);
+            try {
+                TimeUnit.SECONDS.sleep(200); // pause for 2 seconds
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     // TODO tests for Expression
     @Test
-    public void testToString() {
-        Variable variable = new Variable("x");
-        Constant num = new Constant(22.3);
-        Add expr = new Add(variable, num);
+    public void testANTLRParserWithOneValueOrNumber() throws IOException {
+        // test toString method.
+        Expression expr1 = Expression.parse("5");
+        assertEquals("5.0", expr1.toString());
 
-        assertEquals("x+22.3", expr.toString());
+        Expression expr2 = Expression.parse("val");
+        assertEquals("val", expr2.toString());
 
-        Mul mul = new Mul(new Variable("y"), expr);
 
-        assertEquals("y*(x+22.3)", mul.toString());
 
-    }
+        // test equals method
+        Expression expr4 = Expression.parse("5");
+        assertTrue(expr4.equals(expr1));
 
-    @Test
-    public void testEquals() {
-        Variable variable = new Variable("x");
-        Constant num = new Constant(22.3);
-        Add expr = new Add(variable, num);
-        Add expr2 = new Add(num, variable);
+        Expression expr6 = Expression.parse("val");
+        assertTrue(expr6.equals(expr2));
 
-        assertFalse(expr.equals(expr2));
 
-        assertEquals("x+22.3", expr.toString());
+        // test hashCode method
+        assertEquals(expr4.hashCode(), expr1.hashCode());
+        assertEquals(expr6.hashCode(), expr2.hashCode());
 
     }
 
-    @Test
-    public void testHashCode() {
-        Variable variable = new Variable("x");
-        Constant num = new Constant(1);
-        Add expr = new Add(variable, num);
-        Add expr2 = new Add(variable, new Constant(1.0));
 
-        assertEquals(expr2.hashCode(), expr.hashCode());
+
+    @Test
+    public void testANTLRParserExpression() throws IOException {
+        // test toString method.
+        Expression expr1 = Expression.parse("54+(2+89)");
+
+        assertEquals("54.0+2.0+89.0", expr1.toString());
+
+        Expression expr2 = Expression.parse("54*2*89");
+        assertEquals("54.0*2.0*89.0", expr2.toString());
+
+
+        Expression expr3 = Expression.parse("54*(2.0+89.0)");
+        assertEquals("54.0*(2.0+89.0)", expr3.toString());
+
+
+        // test equals method
+        Expression expr4 = Expression.parse("54+(2+89)");
+        assertTrue(expr4.equals(expr1));
+
+        Expression expr6 = Expression.parse("54*2*89");
+        assertTrue(expr6.equals(expr2));
+
+        Expression expr7 = Expression.parse("54*(2+89)");
+        assertTrue(expr7.equals(expr3));
+
+        // test hashCode method
+        assertEquals(expr4.hashCode(), expr1.hashCode());
+        assertEquals(expr6.hashCode(), expr2.hashCode());
+        assertEquals(expr7.hashCode(), expr3.hashCode());
     }
 }

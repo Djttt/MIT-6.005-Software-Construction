@@ -1,10 +1,26 @@
 package expressivo;
 
+/**
+ * represent a constant number, this constant is double value data type. And value must >= 0.
+ */
 public class Constant implements Expression{
-    double value;
+    private final double value;
+    // rep invariant
+    // value >=0, immutable data type
+    //
+    // abstraction function
+    // represent a constant in expression
+    //
+    // safety from rep exposure.
+    // all fields are private.
+
+    private void checkRep() {
+        assert this.value >= 0;
+    }
 
     Constant(double value) {
         this.value = value;
+        checkRep();
     }
 
 

@@ -3,22 +3,24 @@ package expressivo;
 import java.security.PublicKey;
 
 /**
- * An immutable data type to present a polynomial expression with add operator.
+ * An immutable data type to present a polynomial expression.
+ * newExpression = expression left + expression right.
  */
 public class Add implements Expression {
     private final Expression left;
     private final Expression right;
     // Rep invariants
-    // operator != null, rest != null
+    // left != null, right != null
     // abstraction function
-    // represent a new expression: newExpression = expression(rest)+operator.
+    // represent a new expression: newExpression = expression(left)+expression(right).
     // safety from Rep exposure
     // all fields is private
-    // operator is string, which is immutable.
-    // expression is immutable.
+    // Expression left  is immutable.
+    // Expression right is immutable.
 
     private void checkRep () {
-        throw new RuntimeException("not implemented");
+        assert left != null;
+        assert right != null;
     }
 
     /**
@@ -29,6 +31,7 @@ public class Add implements Expression {
     public Add(Expression left, Expression right) {
         this.left = left;
         this.right = right;
+        checkRep();
     }
 
     /**

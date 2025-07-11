@@ -21,15 +21,35 @@ public interface ExpressionListener extends ParseTreeListener {
    */
   void exitRoot(ExpressionParser.RootContext ctx);
   /**
-   * Enter a parse tree produced by {@link ExpressionParser#sum}.
+   * Enter a parse tree produced by {@link ExpressionParser#polynomial_calculate}.
    * @param ctx the parse tree
    */
-  void enterSum(ExpressionParser.SumContext ctx);
+  void enterPolynomial_calculate(ExpressionParser.Polynomial_calculateContext ctx);
   /**
-   * Exit a parse tree produced by {@link ExpressionParser#sum}.
+   * Exit a parse tree produced by {@link ExpressionParser#polynomial_calculate}.
    * @param ctx the parse tree
    */
-  void exitSum(ExpressionParser.SumContext ctx);
+  void exitPolynomial_calculate(ExpressionParser.Polynomial_calculateContext ctx);
+  /**
+   * Enter a parse tree produced by {@link ExpressionParser#add_expr}.
+   * @param ctx the parse tree
+   */
+  void enterAdd_expr(ExpressionParser.Add_exprContext ctx);
+  /**
+   * Exit a parse tree produced by {@link ExpressionParser#add_expr}.
+   * @param ctx the parse tree
+   */
+  void exitAdd_expr(ExpressionParser.Add_exprContext ctx);
+  /**
+   * Enter a parse tree produced by {@link ExpressionParser#mul_expr}.
+   * @param ctx the parse tree
+   */
+  void enterMul_expr(ExpressionParser.Mul_exprContext ctx);
+  /**
+   * Exit a parse tree produced by {@link ExpressionParser#mul_expr}.
+   * @param ctx the parse tree
+   */
+  void exitMul_expr(ExpressionParser.Mul_exprContext ctx);
   /**
    * Enter a parse tree produced by {@link ExpressionParser#primitive}.
    * @param ctx the parse tree
