@@ -1,5 +1,7 @@
 package expressivo;
 
+import java.util.Map;
+
 /**
  * represent a constant number, this constant is double value data type. And value must >= 0.
  */
@@ -23,6 +25,13 @@ public class Constant implements Expression{
         checkRep();
     }
 
+    /**
+     * Get constant value
+     * @return a double data type value.
+     */
+    public double getValue() {
+        return value;
+    }
 
     @Override
     public String toString() {
@@ -56,5 +65,10 @@ public class Constant implements Expression{
     @Override
     public Expression differentiation(Variable variable) {
         return new Constant(0.0);
+    }
+
+    @Override
+    public Expression simplificationHelper(Map<Variable, Double> env) {
+        return this;
     }
 }

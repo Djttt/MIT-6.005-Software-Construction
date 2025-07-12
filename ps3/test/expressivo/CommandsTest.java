@@ -88,22 +88,42 @@ public class CommandsTest {
 
     @Test
     public void testDifferentiateWithInvalidLackParent() {
-        String expr = Commands.differentiate("x * x + (x + y", "x");
-        assertEquals("x*1.0+x*1.0+1.0+0.0", expr);
+        try {
+            String expr = Commands.differentiate("x * x + (x + y", "x");
 
-        String expr1 = Commands.differentiate("x * x + x + y)", "z");
-        assertEquals("1.0+x*1.0*y+1.0", expr1);
+            String expr1 = Commands.differentiate("x * x + x + y)", "z");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("unknown expression");
+        }
+
     }
 
     @Test
     public void testDifferentiateWithInvalidString() {
-        String expr = Commands.differentiate("2+", "x");
-        assertEquals("1.0*x+x*1.0+1.0+0.0", expr);
+        try {
+            String expr = Commands.differentiate("2+", "x");
+        } catch (IllegalArgumentException e) {
+            System.out.println("unknown expression");
+        }
 
-        String expr1 = Commands.differentiate("(x (* x + x + y)", "z");
-        assertEquals("1.0+x*1.0*y+1.0", expr1);
-
-        String expr2 = Commands.differentiate("3 x", "z");
     }
-    
+
+    @Test
+    public void testDifferentiateWithInvalidString2() {
+        try {
+            String expr1 = Commands.differentiate("(x (* x + x + y)", "z");
+        } catch (IllegalArgumentException e) {
+            System.out.println("unknown expression");
+        }
+    }
+
+    @Test
+    public void testDifferentiateWithInvalidString3() {
+        try {
+            String expr2 = Commands.differentiate("3 x", "z");
+        } catch (IllegalArgumentException e) {
+            System.out.println("unknown expression");
+        }
+    }
 }

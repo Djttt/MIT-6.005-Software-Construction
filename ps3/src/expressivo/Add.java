@@ -1,6 +1,7 @@
 package expressivo;
 
 import java.security.PublicKey;
+import java.util.Map;
 
 /**
  * An immutable data type to present a polynomial expression.
@@ -48,10 +49,36 @@ public class Add implements Expression {
      */
     public int getPrecedence() { return 1; }
 
+    /**
+     * get add expression's left sub-expression
+     * @return this expression's left child expression
+     */
+    public Expression getLeft() {
+        return left;
+    }
+
+    /**
+     * get add expression's right sub-expression
+     * @return this expression's right child expression
+     */
+    public Expression getRight() {
+        return right;
+    }
+
     @Override
     public Expression differentiation(Variable variable) {
         return new Add(left.differentiation(variable),
                         right.differentiation(variable));
+    }
+
+    @Override
+    public Expression simplificationHelper(Map<Variable, Double> env) {
+        Add expr =  new Add(left.simplificationHelper(env), right.simplificationHelper(env));
+        if (expr.getLeft() instanceof Constant && expr.getRight() instanceof Constant) {
+            return new Constant(((Constant) expr.getLeft()).getValue() +
+                    ((Constant) expr.getRight()).getValue());
+        }
+        return expr;
     }
 
 

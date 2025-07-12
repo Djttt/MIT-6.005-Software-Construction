@@ -10,10 +10,12 @@ import expressivo.parser.ExpressionParser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * An immutable data type representing a polynomial expression of:
@@ -43,22 +45,27 @@ public interface Expression {
      */
     public static Expression parse(String input) throws IllegalArgumentException {
         CharStream stream = new ANTLRInputStream(input);
-        ExpressionLexer lexer = new ExpressionLexer(stream);
-        TokenStream tokens = new CommonTokenStream(lexer);
+        try {
+            ExpressionLexer lexer = new ExpressionLexer(stream);
+            lexer.reportErrorsAsExceptions();
+            TokenStream tokens = new CommonTokenStream(lexer);
 
-        ExpressionParser parser = new ExpressionParser(tokens);
+            ExpressionParser parser = new ExpressionParser(tokens);
 
-        // produces a parse tree
-        ParseTree tree = parser.root();
+            // produces a parse tree
+            parser.reportErrorsAsExceptions();
+            ParseTree tree = parser.root();
 
-        // Traversing the parse tree
-        ParseTreeWalker walker = new ParseTreeWalker();
-        MakeExpresion listener = new MakeExpresion();
-        walker.walk(listener, tree);
 
-        Expression result = listener.getExpression();
-
-        return result;
+            // Traversing the parse tree
+            ParseTreeWalker walker = new ParseTreeWalker();
+            MakeExpresion listener = new MakeExpresion();
+            walker.walk(listener, tree);
+            Expression result = listener.getExpression();
+            return result;
+        } catch (ParseCancellationException e) {
+            throw new IllegalArgumentException("ParseError: unknown expression");
+        }
     }
     
     /**
@@ -107,4 +114,25 @@ public interface Expression {
      */
     public Expression differentiation(Variable variable);
 
+
+    /**
+     *  simplificationHelper function to help to make simplification work out
+     *  It substitutes the values for those variables into the expression, and attempts
+     * to simply the substituted polynomial as much as it can.
+     * @param env a map(mapping of variables to values)
+     * @return new expression which is substitute polynomial.
+     */
+    public Expression simplificationHelper(Map<Variable, Double> env);
+
+    /**
+     *  takes an expression and an environment (a mapping of variables to values)
+     *  It substitutes the values for those variables into the expression, and attempts
+     * to simply the substituted polynomial as much as it can.
+     * @param expr currently expression want to simply
+     * @param env a map(mapping of variables to values)
+     * @return new expression which is substitute polynomial.
+     */
+    public static Expression simplification(Expression expr, Map<Variable, Double> env) {
+        return expr.simplificationHelper(env);
+    }
 }

@@ -1,6 +1,8 @@
 package expressivo;
 
 
+import java.util.Map;
+
 /**
  * represent a variable, this variable are case-sensitive nonempty sequences of letters.
  */
@@ -66,5 +68,14 @@ public class Variable implements Expression{
         return new Constant(0);
     }
 
+    @Override
+    public Expression simplificationHelper(Map<Variable, Double> env) {
+        for (Variable var : env.keySet()) {
+            if (var.equals(this)) {
+                return new Constant(env.get(var));
+            }
+        }
+        return this;
+    }
 
 }

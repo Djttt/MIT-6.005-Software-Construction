@@ -4,6 +4,7 @@
 package expressivo;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,8 +42,16 @@ public class Commands {
      *         Additional simplifications to the expression may be done at the implementor's discretion.
      * @throws IllegalArgumentException if the expression is invalid
      */
-    public static String simplify(String expression, Map<String,Double> environment) {
-        throw new RuntimeException("unimplemented");
+    public static String simplify(String expression, Map<String,Double> environment) throws IllegalArgumentException{
+        Expression expr = Expression.parse(expression);
+        Map<Variable, Double> env = new HashMap<>();
+        for (String str : environment.keySet()) {
+            Variable var = new Variable(str);
+            Double num = environment.get(str);
+            env.put(var, num);
+        }
+        Expression newExpr = Expression.simplification(expr, env);
+        return newExpr.toString();
     }
     
 }

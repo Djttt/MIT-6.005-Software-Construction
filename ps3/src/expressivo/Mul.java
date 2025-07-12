@@ -1,5 +1,7 @@
 package expressivo;
 
+import java.util.Map;
+
 /**
  * An immutable data type to present a polynomial expression with multiplication operator.
  * new Expression = expression left + expression right.
@@ -29,6 +31,7 @@ public class Mul implements Expression{
     public Mul(Expression left, Expression right) {
         this.left = left;
         this.right = right;
+        checkRep();
     }
 
     /**
@@ -45,10 +48,36 @@ public class Mul implements Expression{
      */
     public int getPrecedence() { return 2; }
 
+    /**
+     * get add expression's left sub-expression
+     * @return this expression's left child expression
+     */
+    public Expression getLeft() {
+        return left;
+    }
+
+    /**
+     * get add expression's right sub-expression
+     * @return this expression's right child expression
+     */
+    public Expression getRight() {
+        return right;
+    }
+
     @Override
     public Expression differentiation(Variable variable) {
         return new Add(new Mul(left, right.differentiation(variable)),
                         new Mul(right, left.differentiation(variable)));
+    }
+
+    @Override
+    public Expression simplificationHelper(Map<Variable, Double> env) {
+        Mul expr = new Mul(left.simplificationHelper(env), right.simplificationHelper(env));
+        if (expr.getLeft() instanceof Constant && expr.getRight() instanceof Constant) {
+            return new Constant(((Constant) expr.getLeft()).getValue() *
+                    ((Constant) expr.getRight()).getValue());
+        }
+        return expr;
     }
 
     @Override

@@ -12,12 +12,12 @@ import java.util.Stack;
 public class MakeExpresion implements ExpressionListener {
     private Stack<Expression> stack = new Stack<>();
 
-    public Expression getExpression() {
+    public Expression getExpression() throws IllegalArgumentException{
         return stack.get(0);  // root expression
     }
 
     @Override
-    public void exitAdd_expr(ExpressionParser.Add_exprContext ctx) {
+    public void exitAdd_expr(ExpressionParser.Add_exprContext ctx) throws IllegalArgumentException{
         List<ExpressionParser.Mul_exprContext> terms = ctx.mul_expr();
         assert stack.size() >= terms.size();
 
@@ -31,7 +31,7 @@ public class MakeExpresion implements ExpressionListener {
 
 
     @Override
-    public void exitMul_expr(ExpressionParser.Mul_exprContext ctx) {
+    public void exitMul_expr(ExpressionParser.Mul_exprContext ctx) throws IllegalArgumentException{
         List<ExpressionParser.PrimitiveContext> factors = ctx.primitive();
         assert stack.size() >= factors.size();
 
@@ -45,7 +45,7 @@ public class MakeExpresion implements ExpressionListener {
 
 
     @Override
-    public void exitPrimitive(ExpressionParser.PrimitiveContext ctx) {
+    public void exitPrimitive(ExpressionParser.PrimitiveContext ctx) throws IllegalArgumentException{
         if (ctx.NUMBER() != null) {
             double value = Double.parseDouble(ctx.NUMBER().getText());
             stack.push(new Constant(value));

@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -181,4 +183,29 @@ public class ExpressionTest {
         assertEquals("x*(x*1.0+x*1.0)+x*x*1.0+x*0.0+y*1.0", dExpr3.toString());
         assertEquals("x*(x*0.0+x*0.0)+x*x*0.0+x*1.0+y*0.0", dExpr4.toString());
     }
+
+    @Test
+    public void testSimplificationWithMul() {
+        Expression expr1 = Expression.parse("x*x*x");
+        Map<Variable, Double> env = new HashMap<>();
+        env.put(new Variable("x"), 2.0);
+        env.put(new Variable("y"), 10.0);
+        env.put(new Variable("z"), 20.0);
+        Expression newExpr = Expression.simplification(expr1, env);
+        assertEquals("8.0", newExpr.toString());
+
+
+        Expression expr2 = Expression.parse("x*x*x + y + x");
+        Expression newExpr1 = Expression.simplification(expr2, env);
+        assertEquals("20.0", newExpr1.toString());
+
+        Expression expr3 = Expression.parse("x*x*x + y*y*y");
+        Expression newExpr2 = Expression.simplification(expr3, env);
+        assertEquals("1008.0", newExpr2.toString());
+
+        Expression expr4 = Expression.parse("1+2*3+8*0.5");
+        Expression newExpr3 = Expression.simplification(expr4, env);
+        assertEquals("11.0", newExpr3.toString());
+    }
+
 }
