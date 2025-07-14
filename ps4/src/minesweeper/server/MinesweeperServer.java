@@ -53,16 +53,19 @@ public class MinesweeperServer {
     public void serve() throws IOException {
         while (true) {
             // block until a client connects
-            Socket socket = serverSocket.accept();
+            Socket clientSocket = serverSocket.accept();
 
             // handle the client
-            try {
-                handleConnection(socket);
-            } catch (IOException ioe) {
-                ioe.printStackTrace(); // but don't terminate serve()
-            } finally {
-                socket.close();
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        handleConnection(clientSocket);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }).start();
         }
     }
 
@@ -106,6 +109,7 @@ public class MinesweeperServer {
         String[] tokens = input.split(" ");
         if (tokens[0].equals("look")) {
             // 'look' request
+            return "hi";
             // TODO Problem 5
         } else if (tokens[0].equals("help")) {
             // 'help' request
