@@ -25,12 +25,17 @@ public class Board {
     // rep invariant
     // each square has 0.25 probability generate a bomb. And all squares' states should be set to untouched,
     // each square have a bomb or not. mutable data type.
+
     // abstraction function
     // represent a minesweeper board, with x*y size.
+
     // rep exposure
-    // all fields are private
+    // all fields are private,
+    // getSquare() method get a reference of square, but it's private, so avoid rep exposure.
     //
     // thread safety argument
+    // all accesses to board within Board class,
+    // which are all guarded by lock with keyword synchronized
 
 
     private void checkRep() {
@@ -55,6 +60,37 @@ public class Board {
             }
         }
         // init neighbor squares bombs information.
+        initNeighborBombs();
+        checkRep();
+    }
+
+    /**
+     * Implement init a board by input val array (this array created by io file)
+     * @param xSize initial the board with xSize, xSize > 0.
+     * @param ySize initial the board with ySize, ySize > 0.
+     * @param val input array for construct board
+     */
+    public Board(int xSize, int ySize, int[][] val) {
+        assert val.length == ySize;
+        assert val[0].length == xSize;
+        this.xSize = xSize;
+        this.ySize = ySize;
+        board = new Square[ySize][xSize];
+        for (int y = 0; y < ySize; y++) {
+            for (int x = 0; x < xSize; x++) {
+                board[y][x] = new Square(y, x);
+            }
+        }
+        for (int y = 0; y < ySize; y+=1) {
+            for (int x = 0; x < xSize; x+=1) {
+                if (val[y][x] == 0) {
+                    board[y][x].setNoBomb();
+                }
+                else if (val[y][x] == 1) {
+                    board[y][x].setBomb();
+                }
+            }
+        }
         initNeighborBombs();
         checkRep();
     }
@@ -98,6 +134,22 @@ public class Board {
         checkRep();
     }
 
+    /**
+     *
+     * @return cols about this board
+     */
+    public int getxSize() {
+        return xSize;
+    }
+
+    /**
+     *
+     * @return rows about this board.
+     */
+    public int getySize() {
+        return ySize;
+    }
+
 
     /**
      * Get location with (i, j) square's state in the board.
@@ -105,7 +157,7 @@ public class Board {
      * @param y the y index in board, y>=0 and y < board.ySize
      * @return square's state with location (i, j).
      */
-    public String getSquareState(int x, int y) {
+    public synchronized String getSquareState(int x, int y) {
         Square square = getSquare(x, y);
         checkRep();
         return square.getState();
@@ -118,7 +170,7 @@ public class Board {
      * @param y square's y coordinate.
      * @return return a square of index of (x, y).
      */
-    private Square getSquare(int x, int y) {
+    private synchronized Square getSquare(int x, int y) {
         return this.board[y][x];
     }
 
@@ -202,20 +254,21 @@ public class Board {
      * For any DIG message where a BOOM message is not returned, return a BOARD message.
      * @param x the x index in board, x>=0 and x < board.xSize
      * @param y the y index in board, y>=0 and y < board.ySize
-     * @return if set the square successful, return true, else return false.
+     * @return if  dig the square boom return true, else return false.
      */
-    public boolean dig(int x, int y) {
+    public synchronized boolean dig(int x, int y) {
         Square square = board[y][x];
         String curState = square.getState();
+        boolean boom = false;
         if (curState.equals(Board.untouched)) {
             square.modify(Board.dug);
             if (square.hasBomb()) {
                 square.setNoBomb();
+                boom = true;
             }
             changeNeighborState(x, y);
-            return true;
         }
-        return false;
+        return boom;
     }
 
 
@@ -227,7 +280,7 @@ public class Board {
      * @param y the y index in board, y>=0 and y < board.ySize
      * @return if set the square successful, return true, else return false.
      */
-    public boolean flag(int x, int y) {
+    public synchronized boolean flag(int x, int y) {
         Square square = getSquare(x, y);
         if (square.getState().equals(Board.untouched)) {
             square.modify(Board.flagged);
@@ -244,7 +297,7 @@ public class Board {
      * @param y the y index in board, y>=0 and y < board.ySize
      * @return if set the square successful, return true, else return false.
      */
-    public boolean deFlag(int x, int y) {
+    public synchronized boolean deFlag(int x, int y) {
         Square square = getSquare(x, y);
         if (square.getState().equals(Board.flagged)) {
             square.modify(Board.untouched);
@@ -255,10 +308,43 @@ public class Board {
 
 
     @Override
-    public String toString() {
-        throw new RuntimeException("not implement");
+    public synchronized String toString() {
+        String boardMessage = "";
+        for (int y = 0; y < ySize; y += 1) {
+            for (int x = 0; x < xSize; x += 1) {
+                if (board[y][x].getState().equals(Board.dug)) {
+                    List<Square> squareList = getNeighborSquares(x, y);
+                    int countBombs = neighborHasBomb(squareList);
+                    if (countBombs == 0) {
+                        if (x == 0) {
+                            boardMessage += " ";
+                        }
+                        else {
+                            boardMessage += "  ";
+                        }
+                    }
+                    else {
+                        if (x == 0) {
+                            boardMessage += String.valueOf(countBombs);
+                        }
+                        else {
+                            boardMessage += " " + String.valueOf(countBombs);
+                        }
+                    }
+                }
+                else {
+                    if (x == 0) {
+                        boardMessage += board[y][x].getState();
+                    }
+                    else {
+                        boardMessage += " " + board[y][x].getState();
+                    }
+                }
+            }
+            boardMessage += "\n";
+        }
+        return boardMessage;
     }
-
 }
 
 /**
@@ -274,8 +360,16 @@ class Square {
     // state = '-' or 'F', ' ', '[0-9]', mutable data type, state will change.
     // abstraction function
     // represent a square in a board
+
     // safety from rep exposure
     // all fields are private
+    //
+    // thread safety argument
+    //      This class if not threadsafe because it's mutable:
+    //      - x, y is final
+    //      - state, bomb will change, so it's not immutable.
+    // if many threads concurrency access same Square object, and change state and bomb variable,
+    // which is not thread safe.
 
     private void checkRep() {
         assert state.equals(Board.untouched) || state.equals(Board.flagged)  || state.equals(Board.dug);
@@ -307,6 +401,15 @@ class Square {
         if (bomb) {
             bomb = false;
         }
+    }
+
+    /**
+     * set this square have one bomb.
+     */
+    void setBomb() {
+       if (!bomb) {
+           bomb = true;
+       }
     }
 
     /**

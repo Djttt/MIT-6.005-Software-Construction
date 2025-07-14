@@ -85,6 +85,19 @@ public class BoardTest {
         assertEquals(Board.untouched, gameBoard.getSquareState(2, 1));
     }
 
+    @Test
+    public void testToString() {
+        Board gameBoard = new Board(4, 4);
+        System.out.println(gameBoard.toString());
 
+
+        gameBoard.flag(0, 0);
+        System.out.println(gameBoard.toString());
+
+        gameBoard.dig(1, 1);
+        System.out.println(gameBoard.toString());
+
+
+    }
 
 }

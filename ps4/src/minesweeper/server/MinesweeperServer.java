@@ -16,6 +16,8 @@ public class MinesweeperServer {
 
     // System thread safety argument
     //   TODO Problem 5
+    // Board object is thread safe, and initialized with lock to guarded only one thread
+    // can access the instance at same time.
 
     /** Default server port. */
     private static final int DEFAULT_PORT = 4444;
@@ -29,7 +31,20 @@ public class MinesweeperServer {
     /** True if the server should *not* disconnect a client after a BOOM message. */
     private final boolean debug;
 
+    private static Board board;
+    private int numberofUser;
+
     // TODO: Abstraction function, rep invariant, rep exposure
+    // rep invariant
+    // init port must be range within (0, 65535).
+
+
+    // abstraction function
+    // represent a MinesweeperServer, which can connect to serval client and share information to play within it.
+
+    // rep exposure
+    // all fields are private
+
 
     /**
      * Make a MinesweeperServer that listens for connections on port.
@@ -82,6 +97,9 @@ public class MinesweeperServer {
         try {
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 String output = handleRequest(line);
+                if ("__bye__".equals(output)) {
+                    break;
+                }
                 if (output != null) {
                     // TODO: Consider improving spec of handleRequest to avoid use of null
                     out.println(output);
@@ -91,6 +109,39 @@ public class MinesweeperServer {
             out.close();
             in.close();
         }
+    }
+
+
+    /**
+     * @return help message, which return to user.
+     * the exact content of this message should indicate all the commands the user can send to the server.
+     */
+    private String getHelpMessage() {
+        return "RTFM!\n";
+    }
+
+    /**
+     * @return boom message, which return to user.
+     * once this message pass to client, then the connection will disconnect.
+     */
+    private String getBoomMessage() {
+        return "BOOM!\r\n";
+    }
+
+    /**
+     * @return return Board message to user
+     */
+    private String getBoardMessage() {
+        return board.toString();
+    }
+
+    /**
+     * @return hello message, which to return to user.
+     */
+    private String getHelloMessage() {
+        return "Welcome to Minesweeper. Board: " + board.getxSize() + " " + "columns " +
+        "by " + board.getySize() + " " + "rows.\n" + "Players: " + numberofUser + " " +
+                "including you. Type 'help' for help.\r\n";
     }
 
     /**
@@ -105,30 +156,55 @@ public class MinesweeperServer {
         if ( ! input.matches(regex)) {
             // invalid input
             // TODO Problem 5
+
         }
         String[] tokens = input.split(" ");
         if (tokens[0].equals("look")) {
             // 'look' request
-            return "hi";
+            return getBoardMessage();
             // TODO Problem 5
         } else if (tokens[0].equals("help")) {
             // 'help' request
             // TODO Problem 5
+            return getHelpMessage();
         } else if (tokens[0].equals("bye")) {
             // 'bye' request
             // TODO Problem 5
+            return "__bye__";
         } else {
             int x = Integer.parseInt(tokens[1]);
             int y = Integer.parseInt(tokens[2]);
             if (tokens[0].equals("dig")) {
                 // 'dig x y' request
                 // TODO Problem 5
+                if (x < 0 || y < 0 || x >= board.getxSize() || y >= board.getySize()) {
+                    return getBoardMessage();
+                }
+                else {
+                    if (!board.getSquareState(x, y).equals(Board.untouched)) {
+                        return getBoardMessage();
+                    }
+                    boolean boom = board.dig(x, y);
+                    if (boom) {
+                        return getBoomMessage();
+                    }
+                    return getBoardMessage();
+                    // TODO
+                }
             } else if (tokens[0].equals("flag")) {
                 // 'flag x y' request
                 // TODO Problem 5
+                if (x >= 0 && y >= 0 && x < board.getxSize() && y < board.getySize()) {
+                    board.flag(x, y);
+                }
+                return getBoardMessage();
             } else if (tokens[0].equals("deflag")) {
                 // 'deflag x y' request
                 // TODO Problem 5
+                if (x >= 0 && y >= 0 && x < board.getxSize() && y < board.getySize()) {
+                    board.deFlag(x, y);
+                }
+                return getBoardMessage();
             }
         }
         // TODO: Should never get here, make sure to return in each of the cases above
@@ -252,8 +328,71 @@ public class MinesweeperServer {
     public static void runMinesweeperServer(boolean debug, Optional<File> file, int sizeX, int sizeY, int port) throws IOException {
         
         // TODO: Continue implementation here in problem 4
-        
+        // init a board by reading from a file
+        if (file.isPresent()) {
+            BufferedReader buffer = new BufferedReader(new FileReader(String.valueOf(file)));
+            board = createBoardFromFile(buffer);
+        }
+        else {
+            board = new Board(sizeX, sizeY);
+        }
+
         MinesweeperServer server = new MinesweeperServer(port, debug);
         server.serve();
     }
+
+    /**
+     * create init board from input file, which include all information about this board
+     * @param buffer BufferReader type, buffer is not null.
+     * @return  a board created by buffer's information
+     * @throws IOException when the buffer is wrong throw a IO exception.
+     */
+    private static Board createBoardFromFile(BufferedReader buffer) throws IOException{
+        String line;
+        int col = -1;
+        int row = -1;
+        int[][] inputVal = null;
+        int firstLineIdx = 0;
+        int i = 0;  // represent input val row index.
+        int j = 0;  // represent input val col index.
+        while ((line = buffer.readLine()) != null) {
+            String[] splitLine = line.split(" ");
+            if (firstLineIdx == 0) {
+                try {
+                    col = Integer.parseInt(splitLine[0]);
+                    row = Integer.parseInt(splitLine[1]);
+                    inputVal = new int[row][col];
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("input col and row to set the board formatted wrong!");
+                }
+            }
+            else {
+                for (String num : splitLine) {
+                    try {
+                        int val = Integer.parseInt(num);
+                        if (val == 0) {
+                            inputVal[i][j] = 0;
+                        }
+                        else if (val == 1) {
+                            inputVal[i][j] = 1;
+                        }
+                        else {
+                            throw new RuntimeException("input val to represent this square whether have a bomb.");
+                        }
+                        j += 1;
+                    } catch (NumberFormatException e) {
+                        throw new RuntimeException("input val to represent this square whether have a bomb.");
+                    }
+                }
+                i += 1;
+                j = 0;
+            }
+            firstLineIdx += 1;
+        }
+        if (col != -1) {
+            board = new Board(col, row, inputVal);
+        }
+        return board;
+    }
+
 }
