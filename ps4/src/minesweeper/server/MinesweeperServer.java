@@ -32,7 +32,8 @@ public class MinesweeperServer {
     private final boolean debug;
 
     private static Board board;
-    private int numberofUser;
+
+    private final UserCounter userCounter;
 
     // TODO: Abstraction function, rep invariant, rep exposure
     // rep invariant
@@ -55,6 +56,7 @@ public class MinesweeperServer {
      */
     public MinesweeperServer(int port, boolean debug) throws IOException {
         serverSocket = new ServerSocket(port);
+        userCounter = new UserCounter();
         this.debug = debug;
     }
 
@@ -75,6 +77,7 @@ public class MinesweeperServer {
                 @Override
                 public void run() {
                     try {
+                        userCounter.increment();
                         handleConnection(clientSocket);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -93,16 +96,25 @@ public class MinesweeperServer {
     private void handleConnection(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
+        // Sent hello message, once the connection defined and only once
+        String hello = getHelloMessage();
+        out.println(hello);
         try {
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 String output = handleRequest(line);
                 if ("__bye__".equals(output)) {
+                    userCounter.decrement();
                     break;
                 }
                 if (output != null) {
                     // TODO: Consider improving spec of handleRequest to avoid use of null
                     out.println(output);
+                }
+                if (output.equals(getBoomMessage())) {
+                    if (!debug) {
+                        // if debug == false, then disconnect this client.
+                        break;
+                    }
                 }
             }
         } finally {
@@ -111,38 +123,6 @@ public class MinesweeperServer {
         }
     }
 
-
-    /**
-     * @return help message, which return to user.
-     * the exact content of this message should indicate all the commands the user can send to the server.
-     */
-    private String getHelpMessage() {
-        return "RTFM!\n";
-    }
-
-    /**
-     * @return boom message, which return to user.
-     * once this message pass to client, then the connection will disconnect.
-     */
-    private String getBoomMessage() {
-        return "BOOM!\r\n";
-    }
-
-    /**
-     * @return return Board message to user
-     */
-    private String getBoardMessage() {
-        return board.toString();
-    }
-
-    /**
-     * @return hello message, which to return to user.
-     */
-    private String getHelloMessage() {
-        return "Welcome to Minesweeper. Board: " + board.getxSize() + " " + "columns " +
-        "by " + board.getySize() + " " + "rows.\n" + "Players: " + numberofUser + " " +
-                "including you. Type 'help' for help.\r\n";
-    }
 
     /**
      * Handler for client input, performing requested operations and returning an output message.
@@ -156,7 +136,7 @@ public class MinesweeperServer {
         if ( ! input.matches(regex)) {
             // invalid input
             // TODO Problem 5
-
+            return "Not known command line!\n" + getHelpMessage();
         }
         String[] tokens = input.split(" ");
         if (tokens[0].equals("look")) {
@@ -189,7 +169,6 @@ public class MinesweeperServer {
                         return getBoomMessage();
                     }
                     return getBoardMessage();
-                    // TODO
                 }
             } else if (tokens[0].equals("flag")) {
                 // 'flag x y' request
@@ -330,7 +309,7 @@ public class MinesweeperServer {
         // TODO: Continue implementation here in problem 4
         // init a board by reading from a file
         if (file.isPresent()) {
-            BufferedReader buffer = new BufferedReader(new FileReader(String.valueOf(file)));
+            BufferedReader buffer = new BufferedReader(new FileReader(file.get()));
             board = createBoardFromFile(buffer);
         }
         else {
@@ -393,6 +372,45 @@ public class MinesweeperServer {
             board = new Board(col, row, inputVal);
         }
         return board;
+    }
+
+
+    /**
+     * @return help message, which return to user.
+     * the exact content of this message should indicate all the commands the user can send to the server.
+     */
+    private String getHelpMessage() {
+        return "Useage: \n" +
+                "look           -look the board message\n" +
+                "dig x y        -x and y is the coordinate in the board\n" +
+                "flag x y       -x and y is the coordinate in the board\n" +
+                "deflag x y     -x and y is the coordinate in the board\n" +
+                "bye            -terminates the connection\n" +
+                "help           - get help message\r\n";
+    }
+
+    /**
+     * @return boom message, which return to user.
+     * once this message pass to client, then the connection will disconnect.
+     */
+    private String getBoomMessage() {
+        return "BOOM!\r\n";
+    }
+
+    /**
+     * @return return Board message to user
+     */
+    private String getBoardMessage() {
+        return board.toString();
+    }
+
+    /**
+     * @return hello message, which to return to user.
+     */
+    private String getHelloMessage() {
+        return "Welcome to Minesweeper. Board: " + board.getxSize() + " " + "columns " +
+                "by " + board.getySize() + " " + "rows.\n" + "Players: " + userCounter.getCount() + " " +
+                "including you. Type 'help' for help.\r\n";
     }
 
 }
