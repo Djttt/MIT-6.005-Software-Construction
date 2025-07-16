@@ -60,10 +60,13 @@ public class Pitch {
      * @param c letter in {'A',...,'G'}
      */
     public Pitch(char c) {
-        try {
-            value = SCALE[c-'A'];
-        } catch (ArrayIndexOutOfBoundsException aioobe) {
-            throw new IllegalArgumentException(c + " must be in the range A-G");
+        if (c >= 'a' && c <= 'g') {
+            // 小写音符代表高八度
+            value = SCALE[c - 'a'] + OCTAVE; // +12 半音
+        } else if (c >= 'A' && c <= 'G') {
+            value = SCALE[c - 'A'];
+        } else {
+            throw new IllegalArgumentException(c + " must be in the range A-G or a-g");
         }
     }
 
